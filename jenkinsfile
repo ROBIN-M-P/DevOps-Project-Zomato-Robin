@@ -29,7 +29,6 @@ pipeline {
         stage("Code Quality Gate") {
             steps {
                 script {
-                    // Abort build if quality gate fails
                     def qg = waitForQualityGate abortPipeline: true
                     if (qg.status != 'OK') {
                         error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
@@ -81,6 +80,9 @@ pipeline {
         }
         stage("Deploy to Container") {
             steps {
+                // Stop and remove existing container if exists, ignore error if not
+                sh 'docker rm -f zomato || true'
+                // Run new container
                 sh 'docker run -d --name zomato -p 3000:3000 robinworkspace/zomato:latest'
             }
         }
@@ -106,7 +108,7 @@ pipeline {
                 """,
                 to: 'robinpolymp@gmail.com',
                 mimeType: 'text/html',
-                attachmentsPattern: 'trivy.txt'
+                attachmentsPattern: 'trivy.txt, **/dependency-check-report.xml'
         }
     }
 }
