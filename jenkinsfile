@@ -3,35 +3,39 @@ pipeline {
     tools {
         jdk 'jdk17'
         nodejs 'node23'
+        sonarScanner 'sonar-scanner'  // Make sure this matches your Jenkins Tool name
     }
     environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+        SCANNER_HOME = tool 'sonar-scanner'
     }
     stages {
-        stage ("clean workspace") {
+        stage("Clean Workspace") {
             steps {
                 cleanWs()
             }
         }
-        stage ("Git Checkout") {
+        stage("Git Checkout") {
             steps {
                 git branch: 'my-modifications', url: 'git@github.com:ROBIN-M-P/DevOps-Project-Zomato-Robin.git'
             }
         }
-        stage("Sonarqube Analysis"){
-            steps{
+        stage("Sonarqube Analysis") {
+            steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=zomato \
-                    -Dsonar.projectKey=zomato '''
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=zomato -Dsonar.projectKey=zomato'''
                 }
             }
         }
-        stage("Code Quality Gate"){
+        stage("Code Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
+                    // Abort build if quality gate fails
+                    def qg = waitForQualityGate abortPipeline: true
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
+                    }
                 }
-            } 
+            }
         }
         stage("Install NPM Dependencies") {
             steps {
@@ -41,41 +45,41 @@ pipeline {
         stage('OWASP FS SCAN') {
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit -n', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml', skipOnFailure: true
             }
         }
-        stage ("Trivy File Scan") {
+        stage("Trivy File Scan") {
             steps {
                 sh "trivy fs . > trivy.txt"
             }
         }
-        stage ("Build Docker Image") {
+        stage("Build Docker Image") {
             steps {
                 sh "docker build -t zomato ."
             }
         }
-        stage ("Tag & Push to DockerHub") {
+        stage("Tag & Push to DockerHub") {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh "docker tag zomato robinworkspace/zomato:latest "
-                        sh "docker push robinworkspace/zomato:latest "
+                        sh "docker tag zomato robinworkspace/zomato:latest"
+                        sh "docker push robinworkspace/zomato:latest"
                     }
                 }
             }
         }
-        stage('Docker Scout Image') {
+        stage("Docker Scout Image") {
             steps {
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh 'docker-scout quickview robinworkspace/zomato:latest'
-                       sh 'docker-scout cves robinworkspace/zomato:latest'
-                       sh 'docker-scout recommendations robinworkspace/zomato:latest'
-                   }
+                script {
+                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker-scout quickview robinworkspace/zomato:latest'
+                        sh 'docker-scout cves robinworkspace/zomato:latest'
+                        sh 'docker-scout recommendations robinworkspace/zomato:latest'
+                    }
                 }
             }
         }
-        stage ("Deploy to Container") {
+        stage("Deploy to Container") {
             steps {
                 sh 'docker run -d --name zomato -p 3000:3000 robinworkspace/zomato:latest'
             }
