@@ -41,10 +41,10 @@ pipeline {
                 sh "npm install"
             }
         }
-        stage('OWASP FS SCAN') {
+        stage("OWASP FS SCAN") {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit -n', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml', skipOnFailure: true
+                dependencyCheck additionalArguments: '--scan ./ --format XML --out dependency-check-report --disableYarnAudit --disableNodeAudit -n', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml', skipOnFailure: true
             }
         }
         stage("Trivy File Scan") {
@@ -80,9 +80,7 @@ pipeline {
         }
         stage("Deploy to Container") {
             steps {
-                // Stop and remove existing container if exists, ignore error if not
                 sh 'docker rm -f zomato || true'
-                // Run new container
                 sh 'docker run -d --name zomato -p 3000:3000 robinworkspace/zomato:latest'
             }
         }
@@ -108,7 +106,7 @@ pipeline {
                 """,
                 to: 'robinpolymp@gmail.com',
                 mimeType: 'text/html',
-                attachmentsPattern: 'trivy.txt, **/dependency-check-report.xml'
+                attachmentsPattern: 'trivy.txt, dependency-check-report/dependency-check-report.xml'
         }
     }
 }
