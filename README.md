@@ -21,31 +21,6 @@ In this **DevOps project**, I demonstrate how to **deploy a ZOMATO Clone App** u
 
 1. **Stage 1** - Deployment of App to Docker Container
 2. **Stage 2** - Deployment of App to K8S Cluster with Monitoring
-
----
-
-### 📂 GitHub Repo Link:  
-[**ZOMATO Clone DevOps Project**](#)
-
-### 📹 DevOps Project Video Link:  
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/GyoI6-I68aQ)
-
-### 📺 Docker Playlist Video Link:  
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://www.youtube.com/playlist?list=PLs-PsDpuAuTeNx3OgGQ1QrpNBo-XE6VBh)
-
----
-
-## 📂 Other DevOps Projects
-
-### 🟠 **SWIGGY App Project**:  
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/x55z7rk0NAU)
-
-### 🔵 **SonarQube Video Link**:  
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat-square&logo=sonarqube&logoColor=white)](https://youtu.be/ScdedztTaAU)
-
-### 🟡 **Nexus Video Link**:  
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat-square&logo=nexus&logoColor=white)](https://youtu.be/opJAfDOCZuI)
-
 ---
 
 ## Connect with me on LinkedIn:  
